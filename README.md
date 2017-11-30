@@ -22,8 +22,6 @@ We will be using the following data for analysis of the number of reported crimi
 
 - **CMPLNT_FR_TM** (Exact time of occurrence for the reported event).
 
-- **CMPLNT_NUM** (Exact date of occurrence for the reported event).
-
 - **RPT_DT** (Exact date of reporting the offense).
 
 - **KY_CD** (Three digit offense classification code).
