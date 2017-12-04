@@ -5,8 +5,10 @@ import re
 import string
 from operator import add
 from pyspark import SparkContext
+#from pyspark.sql import SparkSession
 from csv import reader
-from datetime import datetime
+from datetime import datetime, date
+import pandas
 
 if __name__ == "__main__":
 	sc = SparkContext()
@@ -14,8 +16,11 @@ if __name__ == "__main__":
 	lines = sc.textFile(sys.argv[1], 1)
 	
 	lines = lines.mapPartitions(lambda x: reader(x))
-	
 	header = lines.first()
+
+	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[0], x[1], x[2], x[5], x[6], x[9], x[10], x[11], x[13]))
+	
+	#header = lines.first()
 
 	def basetype_string(input):
 		mat=re.match('(\d{2}|0?[1-9])/(\d{2}|0?[1-9])/(\d{4})$', input)
@@ -100,14 +105,13 @@ if __name__ == "__main__":
 			return "INVALID"		
 		
 	def validity_time(x):
+		if x == '':
+			return "NULL"
 		try:
-			if x != datetime.strptime(x,"%H:%M:%S").strftime('%H:%M:%S'):
-				raise ValueError;
-			mat=re.match('(\d{2}|0?[1-9])/(\d{2}|0?[1-9])/(\d{4})$', x);
-			if mat is not None:
-				return "VALID";
-			else:
-				return "INVALID";
+			if type(x) is not datetime.date:
+ 				return "VALID"
+ 			else:
+ 				return "INVALID"
 		except ValueError:
 			return "INVALID";
 			
@@ -155,8 +159,8 @@ if __name__ == "__main__":
 	def validity_complaint_number(x):
 		try: 
 			if x == '':
-				return "NULL"
-			elif (len(x) == 9 and x.isdigit() and int(x) > 100000000 and int(x) < 900000000):
+				return "INVALID"
+			elif (len(x) == 9 and x.isdigit() and int(x) > 100000000 and int(x) < 999999999):
 				return "VALID"
 			else:	
 				return "INVALID"
@@ -166,22 +170,23 @@ if __name__ == "__main__":
 	def toCSVLine(data):
 	  return ','.join(str(d) for d in data)			
 	
-	deliverable = lines.map(lambda x: (x[0], basetype_int(x[0]), validity_complaint_number(x[0]),\
+	deliverable = lines.map(lambda x: (x[0], basetype_string(x[0]), validity_complaint_number(x[0]),\
 						x[1], semantictype_date(x[1]), validity_date(x[1]),\
 						x[2], validity_time(x[2]),\
 						x[3], basetype_date(x[3]), semantictype_date(x[3]), validity_date(x[3]),\
 						x[4], basetype_int(x[4]), semantictype_cd(x[4]), validity_key_cd(x[4]),\
-						x[5], basetype_string(x[5]), semantictype_status(x[5]), validity_crime(x[5]),\
-						x[6], basetype_string(x[6]), semantictype_crimetype(x[6]), validity_law_category(x[6]),\
-						x[7], basetype_string(x[7]), semantictype_boro(x[7]), validity_boro(x[7])))
+						x[5], basetype_string(x[5]),\
+						x[6], semantictype_status(x[6]), validity_crime(x[6]),\
+						x[7], basetype_string(x[7]), semantictype_crimetype(x[7]), validity_law_category(x[7]),\
+						x[8], basetype_string(x[8]), semantictype_boro(x[8]), validity_boro(x[8])))
 
-	result = deliverable.filter(lambda x: x[2] == "VALID" and x[5] == "VALID" and x[7] == "VALID" \
-								and x[11] == "VALID" and x[15] == "VALID" and x[19] == "VALID" \
-								and x[23] == "VALID" and x[27] == "VALID") \
-			.map(lambda x: (x[0], x[3], x[6], x[8], x[12], x[16], x[20], x[24]))
+	deliverable = deliverable.filter(lambda x: x[2] == "VALID" and x[5] == "VALID" and x[7] == "VALID" \
+								and x[11] == "VALID" and x[15] == "VALID" and x[20] == "VALID" \
+								and x[24] == "VALID" and x[28] == "VALID") \
+			.map(lambda x: (x[0], x[3], x[6], x[8], x[12], x[16], x[18],x[21], x[25]))
 
-	#cleaned.saveAsTextFile("cldata.out")	
-	#cleaned = result.map(toCSVLine)	
-	deliverable.saveAsTextFile("cldat.out")
-	
+	#deliverable.saveAsTextFile("blah.out")
+	deliverable = deliverable.map(toCSVLine)
+	#deliverable.save('mycsv.csv', 'com.databricks.spark.csv')
+	deliverable.saveAsTextFile("fin.csv")	
 	sc.stop()
