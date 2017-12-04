@@ -5,7 +5,6 @@ import re
 import string
 from operator import add
 from pyspark import SparkContext
-#from pyspark.sql import SparkSession
 from csv import reader
 from datetime import datetime, date
 import pandas
@@ -17,15 +16,11 @@ if __name__ == "__main__":
 	
 	lines = lines.mapPartitions(lambda x: reader(x))
 	header = lines.first()
-
 	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[0], x[1], x[2], x[5], x[6], x[9], x[10], x[11], x[13]))
 	
-	#header = lines.first()
-
 	def basetype_string(input):
-		mat=re.match('(\d{2}|0?[1-9])/(\d{2}|0?[1-9])/(\d{4})$', input)
 		try:
-			if type(input) == str:
+			if type(input) is str:
 				return "STRING"
 		except ValueError:
 			return type(input)		
@@ -40,7 +35,7 @@ if __name__ == "__main__":
 	def basetype_date(input):
 		mat=re.match('(\d{2}|\d{1})/(\d{2}|\d{1})/(\d{4})$', input)
 		if mat is not None:
-			return "DATETIME"
+			return "Date"
 		else:
 			return type(input)
 		
@@ -53,9 +48,8 @@ if __name__ == "__main__":
 
 	def semantictype_boro(value):
 		try: 
-			name = value.upper()		
-			if (len(name) > 4 and len(name) < 14 and type(name) == str):
-				return "Boro name"
+			if (len(value) > 4 and len(value) < 14 and type(value) == str):
+				return "Borough name"
 			else:
 				return "Other"
 		except ValueError:	
@@ -63,19 +57,17 @@ if __name__ == "__main__":
 				
 	def semantictype_status(value):
 		try: 
-			name = value.upper()		
-			if (len(name) > 0 and len(name) < 10 and type(name) == str):
-				return "crime status"
+			if (len(value) > 0 and len(value) < 10 and type(value) == str):
+				return "Crime Status"
 			else:
 				return "Other"
 		except ValueError:	
 				return "Other"
 
 	def semantictype_crimetype(value):
-		try: 
-			name = value.upper()		
-			if (len(name) > 5 and len(name) < 12 and type(name) == str):
-				return "crime type"
+		try: 		
+			if (len(value) > 5 and len(value) < 12 and type(value) == str):
+				return "Crime Type"
 			else:
 				return "Other"
 		except ValueError:	
@@ -185,8 +177,6 @@ if __name__ == "__main__":
 								and x[24] == "VALID" and x[28] == "VALID") \
 			.map(lambda x: (x[0], x[3], x[6], x[8], x[12], x[16], x[18],x[21], x[25]))
 
-	#deliverable.saveAsTextFile("blah.out")
 	deliverable = deliverable.map(toCSVLine)
-	#deliverable.save('mycsv.csv', 'com.databricks.spark.csv')
-	deliverable.saveAsTextFile("fin.csv")	
+	deliverable.saveAsTextFile(“cleanedData.csv")	
 	sc.stop()
