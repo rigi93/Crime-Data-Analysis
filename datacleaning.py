@@ -15,17 +15,10 @@ if __name__ == "__main__":
 	
 	lines = lines.mapPartitions(lambda x: reader(x))
 	
-	header = lines.take(1)
-
-	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[0], x[1], x[2], x[5], x[6], x[9], x[10], x[12]))
-	
-	def basetype_date(input):
-		if mat is not None:
-			return "DATETIME"
-		else:
-			return type(input)
+	header = lines.first()
 
 	def basetype_string(input):
+		mat=re.match('(\d{2}|0?[1-9])/(\d{2}|0?[1-9])/(\d{4})$', input)
 		try:
 			if type(input) == str:
 				return "STRING"
@@ -38,7 +31,14 @@ if __name__ == "__main__":
 			return "INT"
 		except ValueError:
 			return type(input)
-			
+	
+	def basetype_date(input):
+		mat=re.match('(\d{2}|\d{1})/(\d{2}|\d{1})/(\d{4})$', input)
+		if mat is not None:
+			return "DATETIME"
+		else:
+			return type(input)
+		
 	def semantictype_date(value):
 		mat=re.match('(\d{2}|0?[1-9])/(\d{2}|0?[1-9])/(\d{4})$', value)
 		if mat is not None:
@@ -99,11 +99,17 @@ if __name__ == "__main__":
 		except ValueError:
 			return "INVALID"		
 		
-	def validity_time(input):
-		if isinstance(input, datetime.datetime):
-			return "VALID"
-		else:
-			return "INVALID"
+	def validity_time(x):
+		try:
+			if x != datetime.strptime(x,"%H:%M:%S").strftime('%H:%M:%S'):
+				raise ValueError;
+			mat=re.match('(\d{2}|0?[1-9])/(\d{2}|0?[1-9])/(\d{4})$', x);
+			if mat is not None:
+				return "VALID";
+			else:
+				return "INVALID";
+		except ValueError:
+			return "INVALID";
 			
 	def validity_boro(x):
 		x = x.upper()
@@ -150,7 +156,7 @@ if __name__ == "__main__":
 		try: 
 			if x == '':
 				return "NULL"
-			elif (len(x) == 3 and x.isdigit() and int(x) > 100 and int(x) < 900):
+			elif (len(x) == 9 and x.isdigit() and int(x) > 100000000 and int(x) < 900000000):
 				return "VALID"
 			else:	
 				return "INVALID"
@@ -161,7 +167,7 @@ if __name__ == "__main__":
 	  return ','.join(str(d) for d in data)			
 	
 	deliverable = lines.map(lambda x: (x[0], basetype_int(x[0]), validity_complaint_number(x[0]),\
-						x[1], basetype_date(x[1]), semantictype_date(x[1]), validity_date(x[1]),\
+						x[1], semantictype_date(x[1]), validity_date(x[1]),\
 						x[2], validity_time(x[2]),\
 						x[3], basetype_date(x[3]), semantictype_date(x[3]), validity_date(x[3]),\
 						x[4], basetype_int(x[4]), semantictype_cd(x[4]), validity_key_cd(x[4]),\
@@ -169,13 +175,13 @@ if __name__ == "__main__":
 						x[6], basetype_string(x[6]), semantictype_crimetype(x[6]), validity_law_category(x[6]),\
 						x[7], basetype_string(x[7]), semantictype_boro(x[7]), validity_boro(x[7])))
 
-	result = deliverable.filter(lambda x: x[2] == "VALID" and x[6] == "VALID" and x[8] == "VALID" \
-								and x[12] == "VALID" and x[16] == "VALID" and x[20] == "VALID" \
-								and x[24] == "VALID" and x[28] == "VALID") \
-			.map(lambda x: (x[0], x[3], x[7], x[9], x[13], x[17], x[21], x[25]))
-	
-	cleaned = result.map(toCSVLine)
-	
-	cleaned.saveAsTextFile("cleaned_data.csv")
+	result = deliverable.filter(lambda x: x[2] == "VALID" and x[5] == "VALID" and x[7] == "VALID" \
+								and x[11] == "VALID" and x[15] == "VALID" and x[19] == "VALID" \
+								and x[23] == "VALID" and x[27] == "VALID") \
+			.map(lambda x: (x[0], x[3], x[6], x[8], x[12], x[16], x[20], x[24]))
+
+	#cleaned.saveAsTextFile("cldata.out")	
+	#cleaned = result.map(toCSVLine)	
+	deliverable.saveAsTextFile("cldat.out")
 	
 	sc.stop()
