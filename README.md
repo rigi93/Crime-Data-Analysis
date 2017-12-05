@@ -11,10 +11,13 @@ Analyzing NYPD Crime Complaint Data (Historic)
 -------------
 #### <i class="icon-file"></i> Project Report Link
 The project report of Part 1 (Data cleaning) can be found [here!](https://docs.google.com/a/nyu.edu/document/d/190G90TBUJEbTvA8M0haRlhVO3CgpNcm_siW55Rp1cV8/edit?usp=sharing)
+-------------
+
+All the values from the dataset have been cleaned and marked for valid/invalid, updated values for missing values in few columns appropriately as well as validated the data in the allDataCleaning.py file. 
 
 -------------
 
-We will be using the following data for analysis of the number of reported criminal offenses. To do so, we have extracted eight columns of our interest from the main data set: 
+We will be using the following data for analysis of the number of reported criminal offenses. To do so, we have extracted eight columns of our interest from the main data set and cleaned it separately in the datacleaning.py file: 
 
 - **CMPLNT_NUM** (Complaint number to report the event).
 
