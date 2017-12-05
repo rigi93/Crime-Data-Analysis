@@ -94,7 +94,21 @@ if __name__ == "__main__":
 				return "INVALID"
 		except ValueError:
 			return "INVALID"		
-		
+	
+	def validity_complaint_to(x):
+		if x == '':
+			return "not defined"
+		try:
+                        if x != datetime.strptime(x, "%m/%d/%Y").strftime('%m/%d/%Y'):
+                                raise ValueError
+                        mat=re.match('(1[0-2]|0?[1-9])/(3[01]|[12][0-9]|0?[1-9])/(20)(0[6-9]|1[0-5])$', x)
+                        if mat is not None:
+                                return "VALID"
+                        else:
+                                return "INVALID"
+		except ValueError:
+			return "INVALID"
+	
 	def validity_time(x):
 		if x == '':
 			return "NULL"
@@ -119,7 +133,7 @@ if __name__ == "__main__":
 			
 	def validity_location(x):
 		x = x.upper()
-		locations = [‘INSIDE’, ‘OUTSIDE’, ‘FRONT OF’, ‘REAR OF’, ‘OPPOSITE OF’]
+		locations = ['INSIDE', 'OUTSIDE', 'FRONT OF', 'REAR OF', 'OPPOSITE OF']
 		if x == '':
 			return "NULL"
 		elif x in locations:
@@ -157,7 +171,31 @@ if __name__ == "__main__":
 				return "INVALID"
 		except ValueError:
 			return "INVALID"
+		
+	def validity_parks(x):
+		if x == '':
+			return "Not a park"
+		else:
+			return "VALID"
+		
+	def validity_hadevelopt(x):
+		if x == '':
+			return "Not a hadevelopt"
+		else:
+			return "VALID"
 	
+	def validity_xcoord(x):
+		if x == '':
+			return "NULL"
+		else:
+			return "VALID"
+	
+	def validity_ycoord(x):
+		if x == '':
+			return "NULL"
+		else:
+			return "VALID"
+				
 	def validity_complaint_number(x):
 		try: 
 			if x == '':
@@ -174,9 +212,9 @@ if __name__ == "__main__":
 			if x == '':
 				return "NULL"
 			elif (x.isdigit() and int(x) > -90 and int(x) < 90):
-				return "VALID"
-			else:	
 				return "INVALID"
+			else:	
+				return "VALID"
 		except ValueError:
 			return "INVALID"
 
@@ -185,9 +223,9 @@ if __name__ == "__main__":
 			if x == '':
 				return "NULL"
 			elif (x.isdigit() and int(x) > -180 and int(x) < 180):
-				return "VALID"
-			else:	
 				return "INVALID"
+			else:	
+				return "VALID"
 		except ValueError:
 			return "INVALID"
 
@@ -197,7 +235,7 @@ if __name__ == "__main__":
 	deliverable = lines.map(lambda x: (x[0], basetype_string(x[0]), validity_complaint_number(x[0]),\
 						x[1], basetype_date(x[1]), semantictype_date(x[1]), validity_date(x[1]),\
 						x[2], validity_time(x[2]),\
-						x[3], basetype_date(x[3]), semantictype_date(x[3]), validity_date(x[3]),\
+						x[3], basetype_date(x[3]), semantictype_date(x[3]), validity_complaint_to(x[3]),\
 						x[4], validity_time(x[4]),\
 						x[5], basetype_date(x[5]), semantictype_date(x[5]), validity_date(x[5]),\
 						x[6], basetype_int(x[6]), semantictype_cd(x[6]), validity_code(x[6]),\
@@ -208,22 +246,25 @@ if __name__ == "__main__":
 						x[11], basetype_string(x[11]), semantictype_crimetype(x[11]), validity_law_category(x[11]),\
 						x[12], basetype_string(x[12]),\
 						x[13], basetype_string(x[13]), semantictype_boro(x[13]), validity_boro(x[13]),\
-						x[14], basetype_int([x14]),\
+						x[14], basetype_int(x[14]),\
 						x[15], basetype_string(x[15]), validity_location(x[15]),\
 						x[16], basetype_string(x[16]),\
 						x[17], basetype_string(x[17]),\
 						x[18], basetype_string(x[18]),\
-						x[19], basetype_string(x[19]),\
-						x[20], basetype_string(x[20]), validity_latitude(x[20]),\
-						x[21], basetype_string(x[21]), validity_longitude(x[21]),\
-						x[22], basetype_string(x[22])))
+						x[19], basetype_string(x[19]), validity_xcoord(x[19]),\
+						x[20], basetype_string(x[20]), validity_ycoord(x[20]),\
+						x[21], basetype_string(x[21]), validity_latitude(x[21]),\
+						x[22], basetype_string(x[22]), validity_longitude(x[22]),\
+						x[23], basetype_string(x[23])))
 
-	#deliverable = deliverable.filter(lambda x: x[2] == "VALID" and x[6] == "VALID" and x[8] == "VALID" \
-								and x[12] == "VALID" and x[14] == "VALID" and x[18] == "VALID" \
-								and x[22] == "VALID" and x[28] == "VALID" and x[33] == "VALID" \
-								and x[37] == "VALID" and x[43] == "VALID" and x[48] == "VALID" \
-								and x[61] == "VALID" and x[64] == "VALID”).map(lambda x: (x[0], x[3], x[7], x[9], x[13], x[15], x[19], x[23], x[25], x[29], x[31], \
-				 x[34], x[38], x[40], x[44], x[46], x[49], x[52], x[55], x[57], x[59], x[62], x[65]))
+	deliverable = deliverable.filter(lambda x: x[2] == "VALID" and x[6] == "VALID" and x[8] == "VALID" \
+									and (x[12] == "VALID" or x[12] =="not defined") and x[14] == "VALID" and x[18] == "VALID" \
+									and x[22] == "VALID" and x[28] == "VALID" and x[33] == "VALID" \
+									and x[37] == "VALID" and x[43] == "VALID" and x[48] == "VALID" \
+									and x[57] == "VALID" and x[60] == "VALID" and x[63] == "VALID" \
+									and x[66] == "VALID") \
+				.map(lambda x: (x[0], x[3], x[7], x[9], x[13], x[15], x[19], x[23], x[25], x[29], x[31], x[34], x[38], x[40], x[44], x[46], x[49], x[51], x[53], x[55], x[58], x[61], x[64], x[67]))
 
-	deliverable.saveAsTextFile(“try.out”)	
+	deliverable = deliverable.map(toCSVLine)
+	deliverable.saveAsTextFile("final.csv")	
 	sc.stop()
