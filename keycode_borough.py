@@ -14,13 +14,13 @@ if __name__ == "__main__":
 # Extract text file from final.csv in same directory
 	text_file = text_file.mapPartitions(lambda x: reader(x))
 # Read contents from CSV
-	text_file = text_file.map(lambda x: x[4])
-# Keycode is the 5th column therefore n-1=4 hence map x[4]
+	text_file = text_file.map(lambda x: (x[4], x[7]))
+# Keycode is the 5th column therefore n-1=4 hence map x[4] and boroughs is the 8th column therefore similarly map x[7]
 	head = text_file.first()
 # Store the first line of CSV. It will contain header. In the next statement do not perform operations on header
 	cnts = text_file.filter(lambda x: x != head).map(lambda x: (x,1)).reduceByKey(add).sortByKey()
-# maps keycode category to 1 then adds all the ones with same keycodes and sorts it
-	keycode = cnts.map(toCSVLine)
+# maps keycode, Boroughs category to 1 then adds all the ones with same keycodes and sorts it
+	keycode_boroughs = cnts.map(toCSVLine)
 # Map the output in CSV predefined format
-	keycode.saveAsTextFile('keycode.csv')
+	keycode_boroughs.saveAsTextFile('keycode_boroughs.csv')
 # Save the output as a CSV file

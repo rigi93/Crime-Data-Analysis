@@ -16,7 +16,7 @@ if __name__ == "__main__":
 	
 	lines = lines.mapPartitions(lambda x: reader(x))
 	header = lines.first()
-	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[0], x[1], x[2], x[5], x[6], x[9], x[10], x[11], x[13]))
+	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[0], x[1], x[2], x[5], x[6], x[10], x[11], x[13]))
 	
 	def basetype_string(input):
 		try:
@@ -167,16 +167,15 @@ if __name__ == "__main__":
 						x[2], validity_time(x[2]),\
 						x[3], basetype_date(x[3]), semantictype_date(x[3]), validity_date(x[3]),\
 						x[4], basetype_int(x[4]), semantictype_cd(x[4]), validity_key_cd(x[4]),\
-						x[5], basetype_string(x[5]),\
-						x[6], semantictype_status(x[6]), validity_crime(x[6]),\
-						x[7], basetype_string(x[7]), semantictype_crimetype(x[7]), validity_law_category(x[7]),\
-						x[8], basetype_string(x[8]), semantictype_boro(x[8]), validity_boro(x[8])))
+						x[5], semantictype_status(x[5]), validity_crime(x[5]),\
+						x[6], basetype_string(x[6]), semantictype_crimetype(x[6]), validity_law_category(x[6]),\
+						x[7], basetype_string(x[7]), semantictype_boro(x[7]), validity_boro(x[7])))
 
 	deliverable = deliverable.filter(lambda x: x[2] == "VALID" and x[5] == "VALID" and x[7] == "VALID" \
-								and x[11] == "VALID" and x[15] == "VALID" and x[20] == "VALID" \
-								and x[24] == "VALID" and x[28] == "VALID") \
-			.map(lambda x: (x[0], x[3], x[6], x[8], x[12], x[16], x[18],x[21], x[25]))
+								and x[11] == "VALID" and x[15] == "VALID" and x[18] == "VALID" \
+								and x[22] == "VALID" and x[26] == "VALID") \
+			.map(lambda x: (x[0], x[3], x[6], x[8], x[12], x[16], x[19],x[23]))
 
 	deliverable = deliverable.map(toCSVLine)
-	deliverable.saveAsTextFile(“cleanedData.csv")	
+	deliverable.saveAsTextFile("cleanedData.csv")	
 	sc.stop()

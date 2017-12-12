@@ -1,3 +1,4 @@
+
 from __future__ import print_function
 
 import sys
@@ -10,7 +11,7 @@ if __name__ == "__main__":
 	def toCSVLine(data):
 		return ','.join(str(d) for d in data)
 # Useful to define how CSV is stored
-	text_file = sc.TextFile("final.csv")
+	text_file = sc.textFile(sys.argv[1], 1)
 # Extract text file from final.csv in same directory
 	text_file = text_file.mapPartitions(lambda x: reader(x))
 # Read contents from CSV
