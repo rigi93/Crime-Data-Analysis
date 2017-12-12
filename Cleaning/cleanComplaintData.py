@@ -14,7 +14,7 @@ if __name__ == "__main__":
 	lines = sc.textFile(sys.argv[1], 1)
 	lines = lines.mapPartitions(lambda x: reader(x))
 	header = lines.first()
-	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[3], x[7], x[23])
+	lines = lines.filter(lambda x: x!=header).map(lambda x: (x[3], x[7], x[23]))
 	
 	def basetype_string(input):
 		try:
@@ -24,11 +24,11 @@ if __name__ == "__main__":
 			return type(input)		
 
 	def validity_boro(x):
-		x = x.upper()
-		boroughs = ['BROOKLYN', 'STATEN ISLAND', 'MANHATTAN', 'QUEENS', 'BRONX']
 		if x == '':
 			return "NULL"
-		elif x in boroughs:
+		x = x.upper()
+		boroughs = ['BROOKLYN', 'STATEN ISLAND', 'MANHATTAN', 'QUEENS', 'BRONX']
+		if x in boroughs:
 			return "VALID"
 		else:	
 			return "INVALID"
@@ -40,11 +40,11 @@ if __name__ == "__main__":
 			return "VALID"
 			
 	def validity_agency(x):
-		x = x.upper()
-		agency = ['NYPD', 'HPD', 'DOT', 'DCA', 'DOHMH', 'DEP', 'DPR', 'DSNY', 'DOB', 'DHS', 'DOITT', 'CHALL', 'TLC', 'HRA']
 		if x == '':
 			return "NULL"
-		elif x in agency:
+		x = x.upper()
+		agency = ['NYPD', 'HPD', 'DOT', 'DCA', 'DOHMH', 'DEP', 'DPR', 'DSNY', 'DOB', 'DHS', 'DOITT', 'CHALL', 'TLC', 'HRA']
+		if x in agency:
 			return "VALID"
 		else:	
 			return "INVALID"
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 						x[1], basetype_string(x[1]), validity_location(x[1]),\
 						x[2], basetype_string(x[2]), validity_boro(x[2])))
 
-	deliverable = deliverable.filter(lambda x: x[1] == "STRING" and x[2] == "VALID" and x[4] == "STRING" and,\
+	deliverable = deliverable.filter(lambda x: x[1] == "STRING" and x[2] == "VALID" and x[4] == "STRING" and\
 							x[5] == "VALID" and x[7] == "STRING" and x[8] == "VALID") \
 							.map(lambda x: (x[0], x[3], x[6]))
 
