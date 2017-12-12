@@ -12,7 +12,7 @@ def toCSVLine(data):
 
 def formatDate(input):
         a = input.split('/')
-        return a[1]
+        return a[0]
 
 if __name__ == "__main__":
         sc = SparkContext()
