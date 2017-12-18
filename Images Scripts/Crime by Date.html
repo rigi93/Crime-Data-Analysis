@@ -14,7 +14,7 @@
         <body>
             <div id="container">
                 <h1>
-                    Offenses in borough
+                    Crime By Date
                 </h1>
                 <svg id="BarChart" />
                 
@@ -25,7 +25,6 @@
             const CHART_WIDTH=500
             const CHART_HEIGHT=300
             const IMPORT_COLOR="#ca0020"
-            const EXPORT_COLOR="#0571b0"
             const MARGIN = {
                 left: 50,
                 top: 30,
@@ -35,15 +34,13 @@
 
             function drawBarChart(importData){
                 //-------------------------- Create Scales --------------------------
-                //Compute max values for scale Domain
-                const maxImport = d3.max(importData, d=>+d["Offenses"])
+                console.log(importData)
+                const maxImport = d3.max(importData, d=>+d["Value"])
 				
                 barBands = d3.scaleBand()
                     .range([10,CHART_WIDTH- MARGIN.left - MARGIN.top])
-                    .domain(importData.map(d => d["Borough"])) 
+                    .domain(importData.map(d => d["Date"])) 
                     .padding(0.2)
-                
-                //Create Scale for the y-axis
                 yScale = d3.scaleLinear()
                     .range([CHART_HEIGHT- MARGIN.top - MARGIN.bottom,0])
                     .domain([0,maxImport])
@@ -61,11 +58,11 @@
                 
                 importBars
                     .attr("width", barBands.bandwidth())
-                    .attr("height", d => yScale(CHART_HEIGHT)-yScale(d["Offenses"]))
-                    .attr("x", d => barBands(d["Borough"]))
-                    .attr("y", d=> yScale(d["Offenses"]))
+                    .attr("height", d => yScale(CHART_HEIGHT)-yScale(d["Value"]))
+                    .attr("x", d => barBands(d["Date"]))
+                    .attr("y", d=> yScale(d["Value"]))
                     .attr("fill", IMPORT_COLOR)
-                    .append("title").text(d => `${d["Borough"]}(${d["Offenses"]/1e9})`)
+                    .append("title").text(d => `${d["Date"]}(${d["Value"]/1e9})`)
                 
                 //-------------------------- Add Axes --------------------------
                 
@@ -74,7 +71,6 @@
                 
 				let xaxis = d3.axisBottom(barBands)
 				
-
 				axisGroup = d3.select("#BarChart")
                     .append("g")
                     .attr("transform",`translate(${MARGIN.left},${MARGIN.top})`)
@@ -90,7 +86,7 @@
                     .attr("transform", `translate(${MARGIN.left-40},${CHART_HEIGHT-MARGIN.top*2})`)
 					.call(xaxis);   
 				axisGroup.append("text")
-					.text("Boroughs")
+					.text("Day")
                     .attr("dy",(CHART_HEIGHT - MARGIN.top - 10))
                     .attr("dx", MARGIN.left - MARGIN.bottom)
                     .attr("fill","black")
@@ -99,12 +95,12 @@
             }
 
             function loadData(cb){
-                d3.csv("http://localhost:7000/crime_borough.csv", (err, data) => {
+                d3.csv("DataByDate.csv", (err, data) => {
                     cb(data)
                 })
             }
 
-            function main(){ //Main function
+            function main(){ 
                 //Set the width and height of the charts SVG
                 d3.selectAll("#BarChart").attr("width", CHART_WIDTH)
                 d3.selectAll("#BarChart").attr("height", CHART_HEIGHT)

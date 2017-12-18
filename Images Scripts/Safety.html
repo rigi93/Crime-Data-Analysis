@@ -1,0 +1,116 @@
+<html>
+        <header>
+            <title>D3 Lab 2</title>
+            <script src="d3.js"></script>
+            <style>
+                svg {
+                    border: solid 1px #000;
+                }
+                #container {
+                    text-align: center
+                }
+            </style>
+        </header>
+        <body>
+            <div id="container">
+                <h1>
+                    Crime Rate by Population
+                </h1>
+                <svg id="BarChart" />
+                
+            </div>
+        </body>
+        <script>
+            //Global Variables
+            const CHART_WIDTH=500
+            const CHART_HEIGHT=300
+            const EXPORT_COLOR="#0571b0"
+            const MARGIN = {
+                left: 50,
+                top: 30,
+                bottom: 40,
+                right: 0
+            }
+
+            function drawBarChart(importData){
+                //-------------------------- Create Scales --------------------------
+                const maxImport = d3.max(importData, d=>+d["ratio"])
+				
+                barBands = d3.scaleBand()
+                    .range([10,CHART_WIDTH- MARGIN.left - MARGIN.top])
+                    .domain(importData.map(d => d["Borough"])) 
+                    .padding(0.2)
+                
+                yScale = d3.scaleLinear()
+                    .range([CHART_HEIGHT- MARGIN.top - MARGIN.bottom,0])
+                    .domain([0,1])
+
+                //-------------------------- Draw Bars --------------------------
+
+                importBars = d3.select("#BarChart")
+                    .append("g")
+                        .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`)
+						.selectAll("rect")
+                        .data(importData)
+                        .enter()
+                        .append("rect")
+                
+                importBars
+                    .attr("width", barBands.bandwidth())
+                    .attr("height", d => CHART_HEIGHT-yScale(d["ratio"])-1.7*MARGIN.bottom)
+                    .attr("x", d => barBands(d["Borough"]))
+                    .attr("y", d=> yScale(d["ratio"]))
+                    .attr("fill", EXPORT_COLOR)
+                    .append("title").text(d => `${d["Borough"]}(${d["ratio"]/1e9})`)
+                
+                //-------------------------- Add Axes --------------------------
+                
+                let yaxis = d3.axisLeft(yScale)
+                    .tickFormat(v => v);
+                
+				let xaxis = d3.axisBottom(barBands)
+				
+
+				axisGroup = d3.select("#BarChart")
+                    .append("g")
+                    .attr("transform",`translate(${MARGIN.left},${MARGIN.top})`)
+                    .call(yaxis)
+                axisGroup.append("text")
+                    .text("Ratio")
+                    .attr("dy",(CHART_HEIGHT - MARGIN.top - MARGIN.bottom)/4)
+                    .attr("dx",-CHART_HEIGHT + MARGIN.bottom*2)
+                    .attr("fill","black")
+                    .attr("text-anchor","middle")
+                    .attr("transform",`rotate(270,${-35},${(CHART_HEIGHT - MARGIN.top - MARGIN.bottom)/4})`)
+				axisGroup.append("g")
+                    .attr("transform", `translate(${MARGIN.left-40},${CHART_HEIGHT-MARGIN.top*2})`)
+					.call(xaxis);   
+				axisGroup.append("text")
+					.text("Boroughs")
+                    .attr("dy",(CHART_HEIGHT - MARGIN.top - 10))
+                    .attr("dx", MARGIN.left - MARGIN.bottom)
+                    .attr("fill","black")
+                    .attr("text-anchor","middle")
+                    .attr("transform",`rotate(${360},-95,${(CHART_HEIGHT)/2})`)
+            }
+
+            function loadData(cb){
+                d3.csv("Population.csv", (err, data) => {
+                    cb(data)
+                })
+            }
+
+            function main(){ //Main function
+                //Set the width and height of the charts SVG
+                d3.selectAll("#BarChart").attr("width", CHART_WIDTH)
+                d3.selectAll("#BarChart").attr("height", CHART_HEIGHT)
+
+                //Load the data
+                loadData((data) => {
+                    drawBarChart(data)
+                })
+            }
+
+            main()
+        </script>
+    </html>
